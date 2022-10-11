@@ -28,11 +28,12 @@
   hosts: localhost
 
   tasks:
-#    - name: Add KCLI package repository
-#      community.general.copr:
-#        name: karmab/kcli
-#        state: enabled
-#        chroot: epel-8-x86_64
+    - name: Add KCLI package repository
+      when: ansible_distribution == "Fedora"
+      community.general.copr:
+        name: karmab/kcli
+        state: enabled
+        #chroot: epel-8-x86_64
 
     - name: Install KCLI tool
       dnf:
