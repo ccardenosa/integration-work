@@ -2,6 +2,20 @@
 
 ASSETS_DIR=/opt/assets
 
+function check_for_issues {
+  docker_conf=~/.docker/config.json
+  if [ -f $docker_conf ];then
+    diff -u "${XDG_RUNTIME_DIR}"/containers/auth.json $docker_conf > /dev/null
+    if [ $? -ne 0 ];then
+      echo "The content of these two files are different:"
+      echo "   1. $docker_conf"
+      echo "   2. ${XDG_RUNTIME_DIR}/containers/auth.json"
+      echo
+      echo "If $docker_conf exists, the content of ${XDG_RUNTIME_DIR}/containers/auth.json won't be considered"
+      echo "This might cause auth issues since incorrect file is being used by oc-mirror tool."
+    fi
+  fi
+}
 
 # 1) Get oc-mirror tool
 printf "\n========================\n"
@@ -32,8 +46,8 @@ mirror:
   platform:
     channels:
       # Latest available version (for internal integration work).
-      - name: stable-4.10
-        minVersion: '4.10.20'
+      - name: stable-$(echo $OCP_RELEASE_VERSION | cut -d'.' -f1-2)
+        minVersion: '${OCP_RELEASE_VERSION}'
     graph: false
 
   additionalimages:
@@ -45,6 +59,9 @@ oc-mirror --config ${ASSETS_DIR}/ISC/99-ocp-release.yaml \
           --max-per-registry 5 \
           docker://"$(hostname -f)":8443/ocp4
 
+if [ $? -ne 0 ];then
+  check_for_issues
+fi
 
 # 3) Clean up all temporal artifacts
 printf "\n===================================\n"
