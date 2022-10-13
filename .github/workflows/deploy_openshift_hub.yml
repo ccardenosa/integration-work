@@ -23,6 +23,11 @@ on:
         default: /root/pull_secret.json
         required: true
 
+      SSH_PUB_KEY_PATH:
+        description: The path to the local ssh public key file
+        default: /root/.ssh/id_rsa.pub
+        required: true
+
       RUNNER:
         description: Github Action Runner Tag
         default: cnf-runner
