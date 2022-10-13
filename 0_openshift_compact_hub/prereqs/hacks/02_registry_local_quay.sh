@@ -7,6 +7,10 @@ printf "| Install container-tools |\n"
 printf "===========================\n\n"
 
 sudo dnf module install -y container-tools
+if [ -$? -ne 0 ];then
+  echo "Trying to install just podman..."
+  sudo dnf install -y podman
+fi
 
 grep -qxF '# podman aliases ' ~/.bashrc || echo -e "\n# podman aliases \nalias pd='podman'\nalias pds='podman ps'\nalias pdi='podman images'" | sudo tee -a /root/.bashrc
 source /root/.bashrc
