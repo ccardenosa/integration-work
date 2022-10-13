@@ -23,6 +23,7 @@ sed -i "s/QEMUIMAGE/$(basename "${QEMU_IMAGE}")?sha256=${QEMU_IMAGE_UNCOMPRESSED
 sed -i "s/OSTACKIMAGE/$(basename "${OPENSTACK_IMAGE}")?sha256=${OPENSTACK_IMAGE_SHA256}/" "${INSTALL_CONFIG_FILE}"
 
 sed -i "s/REGISTRYHOSTNAME/$(hostname -f)/" "${INSTALL_CONFIG_FILE}"
+sed -i "s/HTTPISOHOSTNAME/$(hostname -f)/" "${INSTALL_CONFIG_FILE}"
 
 sed -i "s|SSHPUBKEY|$(cat ${SSH_PUB_KEY})|" "${INSTALL_CONFIG_FILE}"
 

@@ -29,8 +29,8 @@ platform:
     provisioningNetwork: "Disabled"
     apiVIP: 172.16.100.3
     ingressVIP: 172.16.100.2
-    bootstrapOSImage: http://10.19.115.190:9000/QEMUIMAGE
-    clusterOSImage: http://10.19.115.190:9000/OSTACKIMAGE
+    bootstrapOSImage: http://HTTPISOHOSTNAME:9000/QEMUIMAGE
+    clusterOSImage: http://HTTPISOHOSTNAME:9000/OSTACKIMAGE
     hosts:
       - name: openshift-master-0
         role: master
