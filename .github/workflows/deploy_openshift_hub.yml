@@ -10,7 +10,7 @@ on:
 
       OCP_RELEASE_VERSION:
         description: The version of the OpenShift release to deploy
-        default: 4.10.16
+        default: 4.11.7
         required: true
 
       LOCAL_REGISTRY_TYPE:
@@ -82,8 +82,16 @@ jobs:
       - name: Configure RaDvD and NTP
         run: ./0_openshift_compact_hub/prereqs/hacks/01_network_radvd_ntp.sh
 
-  prereqs_local_registry:
+  prereqs_shusy:
     needs: [ prereqs_network ]
+    runs-on: ${{ github.event.inputs.RUNNER }}
+
+    steps:
+      - name: Deploy Local Registry with Quay
+        run: ./0_openshift_compact_hub/prereqs/hacks/01_deploy_sushy_tools.sh
+
+  prereqs_local_registry:
+    needs: [ prereqs_shusy ]
     runs-on: ${{ github.event.inputs.RUNNER }}
 
     steps:
