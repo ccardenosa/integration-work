@@ -1,5 +1,6 @@
 #!/bin/bash
 
+: ${SUSHY_EMULATOR_LISTEN_PORT:="8080"}
 
 if [[ -d /opt/sushy-tools ]]
 then
@@ -21,8 +22,8 @@ cat <<EOF > /opt/sushy-tools/sushy-emulator.conf
 # Listen on all local IP interfaces
 SUSHY_EMULATOR_LISTEN_IP = u'::'
 
-# Bind to TCP port 8080
-SUSHY_EMULATOR_LISTEN_PORT = 8080
+# Bind to TCP port ${SUSHY_EMULATOR_LISTEN_PORT}
+SUSHY_EMULATOR_LISTEN_PORT = ${SUSHY_EMULATOR_LISTEN_PORT}
 
 # Serve this SSL certificate to the clients
 # SUSHY_EMULATOR_SSL_CERT = u'sushy.cert'
@@ -193,9 +194,12 @@ EOF
 systemctl daemon-reload
 systemctl enable --now sushy-tools
 
+firewall-cmd --zone=libvirt --add-port=${SUSHY_EMULATOR_LISTEN_PORT}/tcp --permanent
+firewall-cmd --reload
+
 retries=1
 while sleep 1; do
-  cmd="curl -sk https://"$(hostname -f)":8080/redfish/v1/Systems/"
+  cmd="curl -sk https://"$(hostname -f)":${SUSHY_EMULATOR_LISTEN_PORT}/redfish/v1/Systems/"
   echo "$cmd... Attempt $retries/10"
   eval $cmd
   if [ $? -eq 0 ];then
