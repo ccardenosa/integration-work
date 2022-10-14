@@ -41,6 +41,9 @@ function tear_down_dns_dhcp_ntp() {
   systemctl daemon-reload
 }
 
+function tear_down_sushy_tool() {
+  rm -fr /opt/sushy-tools/
+}
 
 # 1) Tear down cluster VMs
 printf "\n=========================\n"
@@ -72,3 +75,10 @@ printf "| Tear down DNS, DHCP, and NTP servers |\n"
 printf "========================================\n\n"
 
 tear_down_dns_dhcp_ntp
+
+# 4) Tear down Sushy tool
+printf "\n========================================\n"
+printf "| Tear down Sushy tool |\n"
+printf "========================================\n\n"
+
+tear_down_sushy_tool

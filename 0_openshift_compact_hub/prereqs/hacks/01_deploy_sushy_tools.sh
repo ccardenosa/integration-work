@@ -195,7 +195,7 @@ systemctl enable --now sushy-tools
 
 retries=1
 while sleep 1; do
-  cmd ="curl -sk https://"$(hostname -f)":8080/redfish/v1/Systems/"
+  cmd="curl -sk https://"$(hostname -f)":8080/redfish/v1/Systems/"
   echo "$cmd... Attempt $retries/10"
   eval $cmd
   if [ $? -eq 0 ];then
