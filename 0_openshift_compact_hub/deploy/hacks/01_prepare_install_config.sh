@@ -25,7 +25,7 @@ sed -i "s/OSTACKIMAGE/$(basename "${OPENSTACK_IMAGE}")?sha256=${OPENSTACK_IMAGE_
 sed -i "s/REGISTRYHOSTNAME/$(hostname -f)/" "${INSTALL_CONFIG_FILE}"
 sed -i "s/HTTPISOHOSTNAME/$(hostname -f)/" "${INSTALL_CONFIG_FILE}"
 
-sed -i "s|SSHPUBKEY|$(cat ${SSH_PUB_KEY})|" "${INSTALL_CONFIG_FILE}"
+sed -i "s|SSHPUBKEY|$(cat ${SSH_PUB_KEY_PATH})|" "${INSTALL_CONFIG_FILE}"
 
 sed -i '/REGISTRYCA/e cat /etc/quay-install/quay-rootCA/rootCA.pem | sed "s/^/  /"' "${INSTALL_CONFIG_FILE}"
 sed -i '/REGISTRYCA/d' "${INSTALL_CONFIG_FILE}"
