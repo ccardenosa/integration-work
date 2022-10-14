@@ -51,6 +51,12 @@ printf "==============================\n\n"
 sudo podman pod ps
 sudo podman login -u init -p "adrogallop" "$(hostname -f)":8443
 
+# 5) Allow VMs reach out registry endpoints at libvirt firewall zone
+printf "\n================================================================\n"
+printf "| Allow VMs reach out registry endpoints at libvirt firewall zone |\n"
+printf "==================================================================\n\n"
+firewall-cmd --zone=libvirt --add-port=8443/tcp --permanent
+firewall-cmd --reload
 
 # 5) Uninstall disconnected registry
 # mirror-registry uninstall --autoApprove
