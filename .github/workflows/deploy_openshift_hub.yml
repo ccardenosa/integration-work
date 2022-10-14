@@ -23,9 +23,12 @@ on:
         default: /root/pull_secret.json
         required: true
 
+      # Note for OpenSSH_8.8:
+      # RSA keys need PubkeyAcceptedKeyTypes +ssh-rsa option set
+      # For further details, check out https://ikarus.sg/rsa-is-not-dead/
       SSH_PUB_KEY_PATH:
         description: The path to the local ssh public key file
-        default: /root/.ssh/id_rsa.pub
+        default: /root/.ssh/id_ed25519.pub
         required: true
 
       RUNNER:
