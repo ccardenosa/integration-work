@@ -40,6 +40,15 @@
         name: kcli
         state: latest
 
+###    # See https://github.com/karmab/kcli/issues/195
+###    - name: Set up hypervisor
+###      copy:
+###        dest: "~/.kcli/config.yml"
+###        content: |
+###          twix:
+###            type: kvm
+###            host: 127.0.0.1
+
     - name: Determine if pool folder exists
       stat:
         path: /var/lib/libvirt/images
@@ -106,4 +115,4 @@
         kcli create network -c "2620:52:0:1305::0/64" -d "172.16.100.0/24" \
                             --domain ipv4v6.e2e.bos.redhat.com --nodhcp \
                             networkipv4v6
-      when: "'networkipv4v6' not in {{ ansible_interfaces }}"
+      when: "'networkipv4v6' not in ansible_interfaces"
