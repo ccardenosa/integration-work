@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 ASSETS_DIR=/opt/assets
+INDEX_VERSION=$(echo $OCP_RELEASE_VERSION | cut -d'.' -f1-2)
 
 
 # 1) Get oc-mirror tool
@@ -30,7 +31,7 @@ storageConfig:
 
 mirror:
   operators:
-    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.10
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v${INDEX_VERSION}
       full: true
       packages:
         - name: advanced-cluster-management
@@ -49,10 +50,10 @@ mirror:
             - name: 'latest'
         - name: odf-lvm-operator
           channels:
-            - name: 'stable-4.10'
+            - name: 'stable-${INDEX_VERSION}'
         - name: performance-addon-operator
           channels:
-            - name: '4.10'
+            - name: '${INDEX_VERSION}'
         - name: ptp-operator
           channels:
             - name: 'stable'
@@ -64,19 +65,19 @@ mirror:
             - name: 'stable'
         - name: ocs-operator
           channels:
-            - name: 'stable-4.10'
+            - name: 'stable-${INDEX_VERSION}'
         - name: local-storage-operator
           channels:
             - name: 'stable'
 
-    - catalog: registry.redhat.io/redhat/certified-operator-index:v4.10
+    - catalog: registry.redhat.io/redhat/certified-operator-index:v${INDEX_VERSION}
       full: true
       packages:
         - name: sriov-fec
           channels:
             - name: 'stable'
 
-    - catalog: registry.redhat.io/redhat/community-operator-index:v4.10
+    - catalog: registry.redhat.io/redhat/community-operator-index:v${INDEX_VERSION}
       full: true
       packages:
         - name: hive-operator

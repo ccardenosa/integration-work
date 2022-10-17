@@ -31,5 +31,5 @@ printf "======================================================\n\n"
 oc patch OperatorHub cluster --type json \
        -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": true}]'
 
-oc apply -f /opt/assets/CS/
-oc apply -f /opt/assets/ICSP/
+oc apply -f ${ASSETS_DIR}/CS/
+oc apply -f ${ASSETS_DIR}/ICSP/
