@@ -40,14 +40,15 @@
         name: kcli
         state: latest
 
-###    # See https://github.com/karmab/kcli/issues/195
-###    - name: Set up hypervisor
-###      copy:
-###        dest: "~/.kcli/config.yml"
-###        content: |
-###          twix:
-###            type: kvm
-###            host: 127.0.0.1
+    # See https://github.com/karmab/kcli/issues/195
+    - name: Set up hypervisor
+      when: ansible_distribution == "Fedora"
+      copy:
+        dest: "~/.kcli/config.yml"
+        content: |
+          twix:
+            type: kvm
+            host: 127.0.0.1
 
     - name: Determine if pool folder exists
       stat:
