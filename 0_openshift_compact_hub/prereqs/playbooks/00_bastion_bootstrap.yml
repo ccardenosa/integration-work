@@ -22,11 +22,20 @@
     # Install some tools to perform system engineering tasks
     # on the bastion host.
     - name: Install vim, bash-completion, and htop tools
+      when: ansible_distribution != "CentOS"
       dnf:
         name:
           - vim-enhanced
           - bash-completion
           - htop
+        state: present
+
+    - name: Install vim and bash-completion tools
+      when: ansible_distribution == "CentOS"
+      dnf:
+        name:
+          - vim-enhanced
+          - bash-completion
         state: present
 
     # Tasty is a CLI to manage (e.g. list, info, install, remove, search) OpenShift operators
