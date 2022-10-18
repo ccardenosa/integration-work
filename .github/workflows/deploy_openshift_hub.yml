@@ -90,7 +90,7 @@ jobs:
     runs-on: ${{ github.event.inputs.RUNNER }}
 
     steps:
-      - name: Deploy Local Registry with Quay
+      - name: Deploy Sushy Tools
         run: ./0_openshift_compact_hub/prereqs/hacks/01_deploy_sushy_tools.sh
 
   prereqs_local_registry:
