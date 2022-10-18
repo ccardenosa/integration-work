@@ -61,6 +61,12 @@
         content: |
           set background=dark et ts=2 sw=2
 
+    - name: Set up tmux
+      copy:
+        dest: "~/.tmux.conf"
+        content: |
+          set -g mouse on
+
     - name: Install k9s, ketall, grpcurl, and pullsecret-validator-cli tools
       unarchive:
         src: "{{ item }}"

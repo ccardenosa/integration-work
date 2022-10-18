@@ -17,11 +17,34 @@
         groups: qemu,libvirt
         append: yes
 
+    - name: Enable and start libvirtd.socket service
+      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
+      service:
+        name: libvirtd.socket
+        state: started
+        enabled: yes
+
     - name: Enable and start libvirtd service
+      when: ansible_distribution != "Fedora" and ansible_distribution_version != '36'
       service:
         name: libvirtd
         state: started
         enabled: yes
+
+    - name: Stop libvirtd service
+      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
+      service:
+        name: libvirtd
+        state: stopped
+        enabled: no
+
+    - name: Enable and start virtproxyd service
+      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
+      service:
+        name: virtproxyd.service
+        state: started
+        enabled: yes
+
 
 
 - name: Configure virtual network -> Install KCLI tool
@@ -40,15 +63,15 @@
         name: kcli
         state: latest
 
-    # See https://github.com/karmab/kcli/issues/195
-    - name: Set up hypervisor
-      when: ansible_distribution == "Fedora"
-      copy:
-        dest: "~/.kcli/config.yml"
-        content: |
-          twix:
-            type: kvm
-            host: 127.0.0.1
+###    # See https://github.com/karmab/kcli/issues/195
+###    - name: Set up hypervisor
+###      when: ansible_distribution == "Fedora"
+###      copy:
+###        dest: "~/.kcli/config.yml"
+###        content: |
+###          twix:
+###            type: kvm
+###            host: 127.0.0.1
 
     - name: Determine if pool folder exists
       stat:
