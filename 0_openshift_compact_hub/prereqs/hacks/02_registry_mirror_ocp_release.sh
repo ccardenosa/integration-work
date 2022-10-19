@@ -33,7 +33,8 @@ printf "| Mirror OpenShift release | --> 4.10 (Telco) & 4.11 (Integration)\n"
 printf "============================\n\n"
 
 mkdir -pv ${ASSETS_DIR}/ISC ${ASSETS_DIR}/ICSP "${XDG_RUNTIME_DIR}"/containers
-sudo cp "${LOCAL_SECRET_JSON}" "${XDG_RUNTIME_DIR}"/containers/auth.json
+cp "${LOCAL_SECRET_JSON}" "${XDG_RUNTIME_DIR}"/containers/auth.json
+podman login -u init -p "adrogallop" "$(hostname -f)":8443
 
 cat << EOF > ${ASSETS_DIR}/ISC/99-ocp-release.yaml
 apiVersion: mirror.openshift.io/v1alpha2
