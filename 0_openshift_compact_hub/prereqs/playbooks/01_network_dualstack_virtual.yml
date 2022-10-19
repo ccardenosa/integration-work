@@ -51,8 +51,11 @@
   hosts: localhost
 
   tasks:
+
+    # For CentOS Stream 9 install:
+    # $ ansible-galaxy collection install community.general
     - name: Add KCLI package repository
-      when: ansible_distribution == "Fedora"
+      when: ansible_distribution == "Fedora" or ansible_distribution == "CentOS"
       community.general.copr:
         name: karmab/kcli
         state: enabled
@@ -82,6 +85,8 @@
       shell: sudo kcli create pool -p /var/lib/libvirt/images default
       when: image_pool_folder.stat.islnk is not defined
 
+    # For CentOS Stream 9 install:
+    # $ ansible-galaxy collection install ansible.posix
     - name: Set ACL information to image pool folder
       ansible.posix.acl:
         path: /var/lib/libvirt/images

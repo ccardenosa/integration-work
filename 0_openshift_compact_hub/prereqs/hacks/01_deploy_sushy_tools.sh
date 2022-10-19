@@ -8,7 +8,23 @@ then
   exit 0
 fi
 
-dnf install -y libvirt-devel gcc python3-devel
+if [ "$(cat /etc/*release*|grep 'CentOS Stream release 9'|head -1)" == "CentOS Stream release 9" ];then
+  echo "[FAIL] 'libvirt-devel' package is not available for CentOS Stream 9..."
+  echo
+  echo "  $ dnf search libvirt-devel"
+  echo "  Last metadata expiration check: 1:26:28 ago on Wed 19 Oct 2022 01:40:01 AM EDT."
+  echo "  No matches found."
+  echo
+  echo "  $ pkg-config --print-errors --atleast-version=0.9.11 libvirt ; dnf provides /*/libvirt.pc"
+  echo "  Package 'libvirt' was not found"
+  echo "  Last metadata expiration check: 1:26:45 ago on Wed 19 Oct 2022 01:40:01 AM EDT."
+  echo '  Error: No matches found. If searching for a file, try specifying the full path or using a wildcard prefix ("*/") at the beginning.'
+  echo
+  echo "Aborting installation..."
+  exit 1
+else
+  dnf install -y libvirt-devel gcc python3-devel
+fi
 
 python3 -m venv /opt/sushy-tools
 
