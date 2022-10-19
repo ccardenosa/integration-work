@@ -23,10 +23,11 @@ if [ "$(cat /etc/*release*|grep 'CentOS Stream release 9'|head -1)" == "CentOS S
   echo "Aborting installation..."
   exit 1
 else
-  dnf install -y libvirt-devel gcc python3-devel
+  dnf install -y libvirt-devel gcc python39-devel python39-pip
 fi
 
-python3 -m venv /opt/sushy-tools
+pip3.9 install --upgrade pip>=22.3
+python3.9 -m venv /opt/sushy-tools
 
 source /opt/sushy-tools/bin/activate
 

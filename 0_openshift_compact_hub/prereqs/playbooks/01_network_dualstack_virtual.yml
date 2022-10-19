@@ -18,31 +18,28 @@
         append: yes
 
     - name: Enable and start libvirtd.socket service
-      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
       service:
         name: libvirtd.socket
         state: started
         enabled: yes
 
-    - name: Enable and start libvirtd service
-      when: ansible_distribution != "Fedora" and ansible_distribution_version != '36'
-      service:
-        name: libvirtd
-        state: started
-        enabled: yes
+###    - name: Enable and start libvirtd service
+###      when: ansible_distribution != "Fedora" and ansible_distribution_version != '36'
+###      service:
+###        name: libvirtd
+###        state: started
+###        enabled: yes
 
     - name: Stop libvirtd service
-      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
       service:
         name: libvirtd
         state: stopped
         enabled: no
 
     - name: Enable and start virtproxyd service
-      when: ansible_distribution == "Fedora" and ansible_distribution_version == '36'
       service:
         name: virtproxyd.service
-        state: started
+        state: stopped
         enabled: yes
 
 
