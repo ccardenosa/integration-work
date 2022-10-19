@@ -37,6 +37,10 @@
         dest: /usr/bin/tasty
         mode: '0755'
 
+    - name: Install Ansible extra collections
+      shell: |
+        ansible-galaxy collection install community.general
+        ansible-galaxy collection install ansible.posix
 
 - name: Boostrap bastion host -> Install developer tools
   hosts: localhost
