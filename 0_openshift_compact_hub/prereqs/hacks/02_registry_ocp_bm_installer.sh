@@ -18,7 +18,7 @@ printf "| Install openshift-baremetal-install tool | --> %s\n" "${OCP_RELEASE_VE
 printf "============================================\n\n"
 
 # This needs to happen from the mirrored release
-oc adm release extract --registry-config "$LOCAL_SECRET_JSON" \
+oc adm release extract --registry-config "${XDG_RUNTIME_DIR}"/containers/auth.json \
                        --command=openshift-baremetal-install \
                        --to /usr/bin "$(hostname -f)":8443/ocp4/openshift/release-images:"${OCP_RELEASE_VERSION}"-x86_64
 

@@ -61,6 +61,7 @@ TimeoutStartSec=5m
 ExecStartPre=-/bin/rm -f %t/%n-pid %t/%n-cid
 ExecStart=/usr/bin/podman run \
     --name quay-haproxy \
+    --runtime /usr/bin/crun \
     -v /etc/quay-install/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \
     --net host --privileged \
     --pod=quay-pod \
@@ -98,5 +99,8 @@ printf "====================================\n\n"
 
 ss -lptn | grep haproxy
 
-curl -v http://"[2620:52:0:1305::1]":9000
-curl -k https://"[2620:52:0:1305::1]":8080/redfish/v1/Systems/
+curl -v http://[::1]:9000
+curl -k https://[::1]:8080/redfish/v1/Systems/
+# The bridge connection is created once VM are up
+#curl -v http://"[2620:52:0:1305::1]":9000
+#curl -k https://"[2620:52:0:1305::1]":8080/redfish/v1/Systems/

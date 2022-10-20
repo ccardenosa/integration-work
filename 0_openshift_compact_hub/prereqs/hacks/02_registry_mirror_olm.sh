@@ -20,7 +20,8 @@ printf "| Mirror OLM catalog images |\n"
 printf "=============================\n\n"
 
 rm -rvf ${ASSETS_DIR}/CS ; mkdir -pv ${ASSETS_DIR}/CS ${ASSETS_DIR}/ICSP
-sudo cp -v "${LOCAL_SECRET_JSON}" "${XDG_RUNTIME_DIR}"/containers/auth.json
+cp -v "${LOCAL_SECRET_JSON}" "${XDG_RUNTIME_DIR}"/containers/auth.json
+podman login -u init -p "adrogallop" "$(hostname -f)":8443
 
 cat << EOF > ${ASSETS_DIR}/ISC/99-operators-mirror.yaml
 apiVersion: mirror.openshift.io/v1alpha2
@@ -51,9 +52,9 @@ mirror:
         - name: odf-lvm-operator
           channels:
             - name: 'stable-${INDEX_VERSION}'
-        - name: performance-addon-operator
-          channels:
-            - name: '${INDEX_VERSION}'
+        #- name: performance-addon-operator
+        #  channels:
+        #    - name: '${INDEX_VERSION}'
         - name: ptp-operator
           channels:
             - name: 'stable'
