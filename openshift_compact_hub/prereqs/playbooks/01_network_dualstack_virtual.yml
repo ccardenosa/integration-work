@@ -1,0 +1,136 @@
+---
+- name: Configure virtual network -> Install KCLI dependencies
+  hosts: localhost
+
+  tasks:
+    - name: Install libvirt packages
+      dnf:
+        name:
+          - libvirt
+          - libvirt-daemon-driver-qemu
+          - qemu-kvm
+        state: present
+
+    - name: Add {{ ansible_user_id }} user to qemu and libvirt groups
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: qemu,libvirt
+        append: yes
+
+    - name: Enable and start libvirtd.socket service
+      service:
+        name: libvirtd.socket
+        state: started
+        enabled: yes
+
+###    - name: Enable and start libvirtd service
+###      when: ansible_distribution != "Fedora" and ansible_distribution_version != '36'
+###      service:
+###        name: libvirtd
+###        state: started
+###        enabled: yes
+
+    - name: Stop libvirtd service
+      service:
+        name: libvirtd
+        state: stopped
+        enabled: no
+
+    - name: Enable and start virtproxyd service
+      service:
+        name: virtproxyd.service
+        state: stopped
+        enabled: yes
+
+
+
+- name: Configure virtual network -> Install KCLI tool
+  hosts: localhost
+
+  tasks:
+
+    - name: Add KCLI package repository
+      when: ansible_distribution == "RedHat"
+      command: dnf -y copr enable karmab/kcli
+
+    # $ ansible-galaxy collection install community.general
+    - name: Add KCLI package repository
+      when: ansible_distribution == "Fedora" or ansible_distribution == "CentOS"
+      community.general.copr:
+        name: karmab/kcli
+        state: enabled
+        #chroot: epel-8-x86_64
+
+    - name: Install KCLI tool
+      dnf:
+        name: kcli
+        state: latest
+
+###    # See https://github.com/karmab/kcli/issues/195
+###    - name: Set up hypervisor
+###      when: ansible_distribution == "Fedora"
+###      copy:
+###        dest: "~/.kcli/config.yml"
+###        content: |
+###          twix:
+###            type: kvm
+###            host: 127.0.0.1
+
+    - name: Determine if pool folder exists
+      stat:
+        path: /var/lib/libvirt/images
+      register: image_pool_folder
+
+    - name: Create KCLI image pool
+      shell: sudo kcli create pool -p /var/lib/libvirt/images default
+      when: image_pool_folder.stat.islnk is not defined
+
+    # $ ansible-galaxy collection install ansible.posix
+    - name: Set ACL information to image pool folder
+      ansible.posix.acl:
+        path: /var/lib/libvirt/images
+        entity: "{{ ansible_user_id }}"
+        etype: user
+        permissions: rwx
+        state: present
+
+
+- name: Configure virtual network -> Patch kernel networking
+  hosts: localhost
+
+  tasks:
+    - name: Accept RA packets to configure IPv6
+      sysctl:
+        name: net.ipv6.conf.all.accept_ra
+        value: '2'
+        state: present
+
+    - name: Enable IPv6 forwarding in all interfaces
+      sysctl:
+        name: net.ipv6.conf.all.forwarding
+        value: '1'
+        state: present
+
+    - name: Disable IPv6 address in loopback interface
+      sysctl:
+        name: net.ipv6.conf.lo.disable_ipv6
+        value: '0'
+        state: present
+
+    - name: Enable IPv4 forwarding in all interfaces
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present
+
+    # Current recommended practice in RFC3704 is to enable strict mode
+    # to prevent IP spoofing from DDos attacks. If using asymmetric routing
+    # or other complicated routing, then loose mode is recommended.
+    # Article: https://access.redhat.com/solutions/53031
+    - name: Set loose mode to netfilter when validating IPv4 packets
+      sysctl:
+        name: net.ipv4.conf.all.rp_filter
+        value: '2'
+        state: present
+
+

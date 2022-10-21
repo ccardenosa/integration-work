@@ -1,0 +1,54 @@
+---
+- name: Deploy Openshift virtual cluster
+  hosts: localhost
+  vars:
+    clusterName: "{{ lookup('ansible.builtin.env', 'OCP_CLUSTER_NAME') }}"
+    ocpRelease: "{{ lookup('ansible.builtin.env', 'OCP_RELEASE_VERSION') }}"
+    localPullSecretJson: "{{ lookup('ansible.builtin.env', 'LOCAL_SECRET_JSON') }}"
+    sshPublicKey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY_PATH') }}"
+    # Additional Settings:
+    vmNetwork: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_NAME') | default('baremetal', True) }}"
+    baremetalCIDR: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) }}"
+    apiIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.3"
+    ingressIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.2"
+    vmMem: 32000
+    vmNumCPUs: 16
+    vmDisks:
+      - 200
+      - 200
+      - 50
+      - 50
+      - 20
+      - 20
+      - 20
+
+  tasks:
+
+    - name: Create virtual network
+      tags:
+      - create-net
+      command: >
+        kcli create network -c "{{ baremetalCIDR }}" \
+                            --domain telco5gran.eng.rdu2.redhat.com \
+                            {{ vmNetwork }}
+###        kcli create network -c "2620:52:0:1325::0/64" -d "{{ baremetalCIDR }}" \
+###                            --domain telco5gran.eng.rdu2.redhat.com \
+###                            {{ vmNetwork }}
+      when: "vmNetwork not in ansible_interfaces"
+
+    - name: Create kcli settings from template
+      template:
+        src: templates/kcli-ocp-cluster-deployment.yaml.j2
+        dest: /opt/assets/kcli-ocp-cluster-deployment.yaml
+
+    - name: Check virtual networks
+      command: kcli list networks
+      register: nets
+
+    - name: Show virtual networks
+      debug:
+        msg: "{{ nets.stdout_lines }}"
+
+    - name: Deploy cluster
+      shell: |
+        echo "kcli create kube openshift --paramfile /opt/assets/kcli-ocp-cluster-deployment.yaml"

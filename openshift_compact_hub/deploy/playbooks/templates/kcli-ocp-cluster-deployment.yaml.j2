@@ -1,0 +1,49 @@
+{% macro trim_quotes(str) -%}
+  {{ str|trim|replace("'","") }}
+{%- endmacro -%}
+
+# Available parameters for client/profile/plan files:
+# https://kcli.readthedocs.io/en/latest/#available-parameters-for-client-profile-plan-files
+
+cluster: {{ clusterName }}
+keys:
+  - {{ sshPublicKey }}
+domain: telco5gran.eng.rdu2.redhat.com
+version: stable
+tag: {% set res = trim_quotes(ocpRelease)|split(".") %}{{ res[0] }}.{{ res[1] }}
+masters: 3
+workers: 0
+memory: {{ vmMem }}
+numcpus: {{ vmNumCPUs }}
+pull_secret: {{ localPullSecretJson }}
+network: {{ vmNetwork }}
+# nets=["{\"name\":\"${VIRT_NIC}\",\"nic\":\"ens3\",\"mac\":\"de:ad:be:ff:00:07\"}"] \
+nets:
+  - {{ vmNetwork }}
+baremetal_cidr: {{ baremetalCIDR }}
+api_ip: {{ apiIp }}
+ingress_ip: {{ ingressIp }}
+metal3: True
+localstorage_disks:
+ - vdc
+ - vdd
+ - vde
+ - vdf
+ - vdg
+localstorage_storageclass: fs-two-lso
+localstorage_name: fs-two
+localstorage_volumemode: Filesystem
+disks: {{ vmDisks }}
+# disk_size: 200
+# extra_disks:
+#  - 200
+#  - 50
+#  - 50
+#  - 20
+#  - 20
+restart: true
+#playbook: true
+apps:
+ - local-storage-operator
+ - openshift-gitops-operator
+ - advanced-cluster-management
