@@ -42,6 +42,7 @@
         ansible-galaxy collection install community.general
         ansible-galaxy collection install ansible.posix
         ansible-galaxy collection install containers.podman
+        ansible-galaxy collection install kubernetes.core
 
 - name: Boostrap bastion host -> Install developer tools
   hosts: localhost
