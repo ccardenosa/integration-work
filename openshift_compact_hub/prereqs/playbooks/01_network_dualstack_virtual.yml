@@ -17,11 +17,11 @@
         groups: qemu,libvirt
         append: yes
 
-    - name: Enable and start libvirtd.socket service
-      service:
-        name: libvirtd.socket
-        state: started
-        enabled: yes
+###    - name: Enable and start libvirtd.socket service
+###      service:
+###        name: libvirtd.socket
+###        state: started
+###        enabled: yes
 
 ###    - name: Enable and start libvirtd service
 ###      when: ansible_distribution != "Fedora" and ansible_distribution_version != '36'
@@ -30,19 +30,41 @@
 ###        state: started
 ###        enabled: yes
 
-    - name: Stop libvirtd service
-      service:
-        name: libvirtd
-        state: stopped
-        enabled: no
+###    - name: Stop libvirtd service
+###      service:
+###        name: libvirtd
+###        state: stopped
+###        enabled: no
 
-    - name: Enable and start virtproxyd service
+###    - name: Enable and start virtproxyd service
+###      service:
+###        name: virtproxyd.service
+###        state: stopped
+###        enabled: yes
+
+    - name: Enable and start virtqemud service
       service:
-        name: virtproxyd.service
-        state: stopped
+        name: virtqemud.service
+        state: started
         enabled: yes
 
+    - name: Enable and start virtnetworkd service
+      service:
+        name: virtnetworkd.service
+        state: started
+        enabled: yes
 
+    - name: Enable and start virtstoraged socket
+      service:
+        name: virtstoraged.socket
+        state: started
+        enabled: yes
+
+    - name: Enable and start virtstoraged service
+      service:
+        name: virtstoraged.service
+        state: started
+        enabled: yes
 
 - name: Configure virtual network -> Install KCLI tool
   hosts: localhost
@@ -132,5 +154,3 @@
         name: net.ipv4.conf.all.rp_filter
         value: '2'
         state: present
-
-

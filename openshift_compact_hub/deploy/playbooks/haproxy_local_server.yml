@@ -1,0 +1,37 @@
+---
+- name: Deploy local Proxy server -> Install Haproxy as a systemd service
+  hosts: localhost
+  vars:
+    apiIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.3"
+    ingressIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.2"
+
+  tasks:
+    - name: Copy Haproxy configuration file
+      template:
+        src: templates/haproxy.cfg.j2
+        dest: /opt/assets/haproxy.cfg
+
+    - name: Install Haproxy as systemd unit
+      template:
+          src: templates/podman-haproxy.service.j2
+          dest: /usr/lib/systemd/system/podman-haproxy.service
+
+    - name: Start and Enable the HTTPD systemd service
+      service:
+          name: podman-haproxy.service
+          daemon_reload: yes
+          state: started
+          enabled: yes
+
+
+###- name: Deploy local Proxy server -> Check Haproxy server's endpoints
+###  hosts: localhost
+###
+###  tasks:
+###    - name: Check if HTTPD is serving via IPv6
+###      command: curl -v http://"[2620:52:0:1305::1]":9000
+###      register: httpd_svc
+###      retries: 5
+###      delay: 10
+###      until: httpd_svc is not failed
+###      ignore_errors: True

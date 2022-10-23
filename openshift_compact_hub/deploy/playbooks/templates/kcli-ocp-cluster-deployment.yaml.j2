@@ -20,7 +20,7 @@ network: {{ vmNetwork }}
 # nets=["{\"name\":\"${VIRT_NIC}\",\"nic\":\"ens3\",\"mac\":\"de:ad:be:ff:00:07\"}"] \
 nets:
   - {{ vmNetwork }}
-baremetal_cidr: {{ baremetalCIDR }}
+baremetal_cidr: {{ baremetalCIDR_ipv4 }}
 api_ip: {{ apiIp }}
 ingress_ip: {{ ingressIp }}
 metal3: True

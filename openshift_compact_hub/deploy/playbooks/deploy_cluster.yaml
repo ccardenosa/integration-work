@@ -8,9 +8,10 @@
     sshPublicKey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY_PATH') }}"
     # Additional Settings:
     vmNetwork: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_NAME') | default('baremetal', True) }}"
-    baremetalCIDR: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) }}"
-    apiIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.3"
-    ingressIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.2"
+    baremetalCIDR_ipv4: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) }}"
+    baremetalCIDR_ipv6: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv6') | default('2620:52:0:1325::0/64', True) }}"
+    apiIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.3"
+    ingressIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.2"
     vmMem: 32000
     vmNumCPUs: 16
     vmDisks:
@@ -28,12 +29,9 @@
       tags:
       - create-net
       command: >
-        kcli create network -c "{{ baremetalCIDR }}" \
+        kcli create network -c "{{ baremetalCIDR_ipv6 }}" -d "{{ baremetalCIDR_ipv4 }}" \
                             --domain telco5gran.eng.rdu2.redhat.com \
                             {{ vmNetwork }}
-###        kcli create network -c "2620:52:0:1325::0/64" -d "{{ baremetalCIDR }}" \
-###                            --domain telco5gran.eng.rdu2.redhat.com \
-###                            {{ vmNetwork }}
       when: "vmNetwork not in ansible_interfaces"
 
     - name: Create kcli settings from template
@@ -51,4 +49,13 @@
 
     - name: Deploy cluster
       shell: |
-        echo "kcli create kube openshift --paramfile /opt/assets/kcli-ocp-cluster-deployment.yaml"
+        kcli create kube openshift --paramfile /opt/assets/kcli-ocp-cluster-deployment.yaml | tee /opt/assets/kcli_create_kube_openshift.log
+
+### TODO: Add systemd service to rerun:
+# $ kcli start plan {{ clusterName }}
+
+###    # This should be a systemctl service instead...
+###    - name: Create Tunnels
+###      shell: |
+###        nohup nc -l -k -p 443 -c "nc {{ apiIp }} 6443" &
+###        nohup nc -l -k -p 6443 -c "nc {{ ingressIp }} 443" &
