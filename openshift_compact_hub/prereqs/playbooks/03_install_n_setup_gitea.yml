@@ -3,9 +3,6 @@
   hosts: localhost
   vars:
     giteaHost: lookup('ansible.builtin.env', 'HOSTNAME')
-    giteaDBPasswd: "{{ lookup('ansible.builtin.env', 'GITEA_DB_PASSWD') | default('gitea', True) }}"
-###    giteaConfigPath: /etc/gitea 
-###    giteaDataPath: /var/lib/gitea/
 
   tasks:
     - name: Get and Install Gitea Binary
