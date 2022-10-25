@@ -1,0 +1,13 @@
+[Unit]
+Description={{ clusterName }} OCP vHub cluster
+Wants=network.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/kcli start plan {{ clusterName }}
+ExecStop=-/usr/bin/kcli stop plan {{ clusterName }}
+
+[Install]
+WantedBy=multi-user.target default.target

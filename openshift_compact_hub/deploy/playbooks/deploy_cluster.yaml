@@ -36,7 +36,7 @@
 
     - name: Create kcli settings from template
       template:
-        src: templates/kcli-ocp-cluster-deployment.yaml.j2
+        src: templates/configs/kcli-ocp-cluster-deployment.yaml.j2
         dest: /opt/assets/kcli-ocp-cluster-deployment.yaml
 
     - name: Check virtual networks
@@ -51,8 +51,27 @@
       shell: |
         kcli create kube openshift --paramfile /opt/assets/kcli-ocp-cluster-deployment.yaml | tee /opt/assets/kcli_create_kube_openshift.log
 
-### TODO: Add systemd service to rerun:
-# $ kcli start plan {{ clusterName }}
+    - name: Create systemd kcli plan Linux service
+      template:
+        src: templates/systemd/kcli-cluster-plan.service.j2
+        dest: /etc/systemd/system/kcli-cluster-plan.service
+
+    - name: Run kcli plan as Linux service
+      service:
+        name: kcli-cluster-plan.service
+        state: started
+        enabled: yes
+
+    - name: Check virtual Hub Cluster
+      shell: |
+        kcli list plans
+        echo
+        kcli list vm
+      register: plans
+
+    - name: Show virtual Hub Cluster
+      debug:
+        msg: "{{ plans.stdout_lines }}"
 
 ###    # This should be a systemctl service instead...
 ###    - name: Create Tunnels

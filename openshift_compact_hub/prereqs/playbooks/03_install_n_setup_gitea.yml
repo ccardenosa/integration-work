@@ -1,0 +1,60 @@
+---
+- name: Install and set up Gitea as systemd service
+  hosts: localhost
+  vars:
+    giteaHost: lookup('ansible.builtin.env', 'HOSTNAME')
+    giteaDBPasswd: "{{ lookup('ansible.builtin.env', 'GITEA_DB_PASSWD') | default('gitea', True) }}"
+###    giteaConfigPath: /etc/gitea 
+###    giteaDataPath: /var/lib/gitea/
+
+  tasks:
+    - name: Get and Install Gitea Binary
+      get_url:
+        url: https://dl.gitea.io/gitea/1.17.3/gitea-1.17.3-linux-amd64
+        dest: /usr/local/bin/gitea
+        mode: '0755'
+
+    # https://docs.gitea.io/en-us/install-from-binary/#prepare-environment
+    - name: Create git system accouneDCreate git system accountre environment 
+      user:
+        name: git
+        comment: Git Version Control
+        system: yes
+        shell: /bin/bash
+        password_lock: yes
+        create_home: yes
+        state: present
+
+    # https://docs.gitea.io/en-us/install-from-binary/#create-required-directory-structure
+    - name: Create required directory structure
+      file:
+        path: /var/lib/gitea/{{ item }}
+        state: directory
+        recurse: yes
+        owner: git
+        group: git
+        mode: '0750'
+      loop:
+        - custom
+        - data
+        - log
+
+    - name: Create required etc directory
+      file:
+        path: /etc/gitea/
+        state: directory
+        recurse: yes
+        owner: root
+        group: git
+        mode: '0770'
+
+    - name: Create systemd Gitea Linux service
+      template:
+        src: templates/systemd/gitea.service.j2
+        dest: /etc/systemd/system/gitea.service
+
+    - name: Run Gitea as Linux service
+      service:
+        name: gitea.service
+        state: started
+        enabled: yes

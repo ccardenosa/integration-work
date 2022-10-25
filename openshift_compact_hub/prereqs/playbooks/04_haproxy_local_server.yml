@@ -8,12 +8,12 @@
   tasks:
     - name: Copy Haproxy configuration file
       template:
-        src: templates/haproxy.cfg.j2
+        src: templates/configs/haproxy.cfg.j2
         dest: /opt/assets/haproxy.cfg
 
     - name: Install Haproxy as systemd unit
       template:
-          src: templates/podman-haproxy.service.j2
+          src: templates/systemd/podman-haproxy.service.j2
           dest: /usr/lib/systemd/system/podman-haproxy.service
 
     - name: Start and Enable the HTTPD systemd service

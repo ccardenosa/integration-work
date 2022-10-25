@@ -40,6 +40,7 @@
     - name: Install Ansible extra collections
       shell: |
         ansible-galaxy collection install community.general
+        ansible-galaxy collection install community.mysql
         ansible-galaxy collection install ansible.posix
         ansible-galaxy collection install containers.podman
         ansible-galaxy collection install kubernetes.core
@@ -70,7 +71,27 @@
       copy:
         dest: "~/.tmux.conf"
         content: |
+          # Mouse mode
           set -g mouse on
+
+          # Status bar
+          set -g status on
+          set -g status-interval 1
+          set -g status-justify centre
+          set -g status-style fg=white,bg=black
+
+          # Highlight the current window.
+          setw -g window-status-current-fg white
+          setw -g window-status-current-bg red
+          setw -g window-status-current-attr bright
+
+          # Status Bar Left side
+          set -g status-left-length 50
+          set -g status-left-style default
+
+          # Status Bar Right side
+          set -g status-right-length 40
+          set -g status-right-style default
 
     - name: Install k9s, ketall, grpcurl, and pullsecret-validator-cli tools
       unarchive:
@@ -97,6 +118,6 @@
       replace:
         path: ~/.bashrc
         regexp: 'OSH_THEME=.*'
-        replace: 'OSH_THEME="mairan"'
+        replace: 'OSH_THEME="zork"'
         backup: yes
       when: not omb.stat.exists
