@@ -93,6 +93,33 @@
           set -g status-right-length 40
           set -g status-right-style default
 
+    - name: Set up git
+      copy:
+        dest: "~/.gitconfig"
+        content: |
+          [user]
+            name = rh-developer
+            email = rh-developer@redhat.com
+          [alias]
+            st = status
+            stu = status -uno
+            co = checkout
+            ci = commit
+            br = branch
+            logone = log --decorate=short --pretty=oneline
+            lg = log --graph
+          [pager]
+            branch = false
+          [merge]
+            tool = vimdiff
+            conflictstyle = diff3
+          [mergetool]
+            prompt = false
+          [core]
+            ignorecase = false
+            pager = less -X
+            editor = vim
+
     - name: Install k9s, ketall, grpcurl, and pullsecret-validator-cli tools
       unarchive:
         src: "{{ item }}"
