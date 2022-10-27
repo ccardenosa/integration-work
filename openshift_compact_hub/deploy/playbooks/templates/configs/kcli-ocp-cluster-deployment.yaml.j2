@@ -34,13 +34,13 @@ localstorage_storageclass: fs-two-lso
 localstorage_name: fs-two
 localstorage_volumemode: Filesystem
 disks: {{ vmDisks }}
-# disk_size: 200
-# extra_disks:
-#  - 200
-#  - 50
-#  - 50
-#  - 20
-#  - 20
+disk_size: 200
+extra_disks:
+  - 200
+  - 50
+  - 50
+  - 20
+  - 20
 restart: true
 #playbook: true
 apps:
