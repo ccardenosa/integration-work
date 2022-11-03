@@ -1,8 +1,19 @@
 ---
 - name: Configure virtual network -> Patch kernel networking
   hosts: localhost
+  vars:
+    hubNetwork: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_NAME') | default('hubnetwork', True) }}"
+    devToConnectTo: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_BRIDGE_DEVNAME') | default('eno12399', True) }}"
 
   tasks:
+    - name: Create bridge network
+      shell: |
+        nmcli con add type bridge       autoconnect yes con-name {{ hubNetwork }}-br  ifname {{ hubNetwork }}-dev stp off
+        nmcli con add type bridge-slave autoconnect yes con-name {{ hubNetwork }}-dev ifname {{ devToConnectTo }} master {{ hubNetwork }}-br
+        nmcli con up {{ hubNetwork }}-dev
+        nmcli con show
+        ip -o a
+
     - name: Accept RA packets to configure IPv6
       sysctl:
         name: net.ipv6.conf.all.accept_ra

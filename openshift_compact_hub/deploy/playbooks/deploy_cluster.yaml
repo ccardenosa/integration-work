@@ -3,15 +3,15 @@
   hosts: localhost
   vars:
     clusterName: "{{ lookup('ansible.builtin.env', 'OCP_CLUSTER_NAME') }}"
+    clusterDomainName: "{{ lookup('ansible.builtin.env', 'OCP_CLUSTER_DOMAIN_NAME') }}"
     ocpRelease: "{{ lookup('ansible.builtin.env', 'OCP_RELEASE_VERSION') }}"
     localPullSecretJson: "{{ lookup('ansible.builtin.env', 'LOCAL_SECRET_JSON') }}"
     sshPublicKey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY_PATH') }}"
     # Additional Settings:
-    vmNetwork: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_NAME') | default('baremetal', True) }}"
-    baremetalCIDR_ipv4: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) }}"
-    baremetalCIDR_ipv6: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv6') | default('2620:52:0:1325::0/64', True) }}"
-    apiIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.3"
-    ingressIp: "{% set ip = lookup('ansible.builtin.env', 'HUB_CLUSTER_CIDR_IPv4') | default('172.16.200.0/24', True) | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.2"
+    hubNetwork: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_NETWOTK_NAME') | default('hubnetwork', True) }}"
+    apiIp: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_API_ADDR') }}"
+    ingressIp: "{{ lookup('ansible.builtin.env', 'HUB_CLUSTER_APPS_ADDR') }}"
+    baremetalCIDR_ipv4: "{% set ip = apiIp | split('.') %}{{ ip[0] }}.{{ ip[1] }}.{{ ip[2] }}.0/24"
     vmMem: 32000
     vmNumCPUs: 16
     vmDisks:
@@ -25,25 +25,49 @@
 
   tasks:
 
+    - name: Assert destination dir exists
+      file:
+        path: /opt/assets/{{ hubNetwork }}
+        recurse: yes
+        state: directory
+
+    - name: Define virtual network
+      tags:
+      - create-net
+      copy:
+        dest: "/opt/assets/{{ hubNetwork }}/libvirt-bridge-network-setup.xml"
+        content: |
+          <network>
+            <name>{{ hubNetwork }}</name>
+            <forward mode="bridge"/>
+            <bridge name="{{ hubNetwork }}-dev"/>
+          </network>
+
     - name: Create virtual network
       tags:
       - create-net
-      command: >
-        kcli create network -c "{{ baremetalCIDR_ipv6 }}" -d "{{ baremetalCIDR_ipv4 }}" \
-                            --domain telco5gran.eng.rdu2.redhat.com \
-                            {{ vmNetwork }}
-      when: "vmNetwork not in ansible_interfaces"
+      shell: |
+        virsh net-define /opt/assets/{{ hubNetwork }}/libvirt-bridge-network-setup.xml
+        virsh net-start {{ hubNetwork }}
+        virsh net-autostart {{ hubNetwork }}
+        sleep 5
 
     - name: Create kcli settings from template
+      tags:
+      - create-net
       template:
         src: templates/configs/kcli-ocp-cluster-deployment.yaml.j2
         dest: /opt/assets/kcli-ocp-cluster-deployment.yaml
 
     - name: Check virtual networks
+      tags:
+      - create-net
       command: kcli list networks
       register: nets
 
     - name: Show virtual networks
+      tags:
+      - create-net
       debug:
         msg: "{{ nets.stdout_lines }}"
 

@@ -8,7 +8,7 @@
 cluster: {{ clusterName }}
 keys:
   - {{ sshPublicKey }}
-domain: telco5gran.eng.rdu2.redhat.com
+domain: {{ clusterDomainName }}
 version: stable
 tag: {% set res = trim_quotes(ocpRelease)|split(".") %}{{ res[0] }}.{{ res[1] }}
 masters: 3
@@ -16,10 +16,9 @@ workers: 0
 memory: {{ vmMem }}
 numcpus: {{ vmNumCPUs }}
 pull_secret: {{ localPullSecretJson }}
-network: {{ vmNetwork }}
-# nets=["{\"name\":\"${VIRT_NIC}\",\"nic\":\"ens3\",\"mac\":\"de:ad:be:ff:00:07\"}"] \
+network: {{ hubNetwork }}
 nets:
-  - {{ vmNetwork }}
+  - {{ hubNetwork }}
 baremetal_cidr: {{ baremetalCIDR_ipv4 }}
 api_ip: {{ apiIp }}
 ingress_ip: {{ ingressIp }}
