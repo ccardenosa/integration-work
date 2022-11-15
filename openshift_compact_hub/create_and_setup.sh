@@ -3,7 +3,10 @@
 source $(dirname $0)/../.env
 
 if [[ "$CLEANUP_ENV" == "yes" ]]; then
-  $(dirname $0)/cleanup.sh
+  read -p "You are about to delete your current installation. Are you sure? [y/N]: " proceed_and_delete
+  if [[ "$proceed_and_delete" == "y" ]]; then
+    $(dirname $0)/cleanup.sh
+  fi
 fi
 
 function run_cmd {
