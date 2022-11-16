@@ -73,6 +73,29 @@ function delete_net_bridge {
   fi
 }
 
+function delete_mirror-registry {
+
+#[2022-11-16 11:26:58] Ansible Execution Environment Image: quay.io/quay/mirror-registry-ee:latest
+#[2022-11-16 11:26:58] Pause Image: registry.access.redhat.com/ubi8/pause:8.6-21
+#[2022-11-16 11:26:58] Quay Image: registry.redhat.io/quay/quay-rhel8:v3.7.10
+#[2022-11-16 11:26:58] Redis Image: registry.redhat.io/rhel8/redis-6:1-88.1666660352
+#[2022-11-16 11:26:58] Postgres Image: registry.redhat.io/rhel8/postgresql-10:1-202.1666660384
+
+  if [[ -x /usr/bin/mirror-registry ]]; then
+    echo
+    echo "Deleting 'mirror-registry' installation..."
+    echo "------------------------------------------------"
+    echo
+    run_cmd "mirror-registry uninstall"
+    run_cmd "rm -fr /etc/quay-install /usr/bin/mirror-registry /usr/bin/execution-environment.tar"
+    imgs=("mirror-registry-ee pause quay-rhel8 redis postgresql")
+    for img in ${imgs[@]}; do
+      run_cmd "podman image list $img --noheading | awk '{print \$1\":\"\$2}' | xargs -I % podman image rm %"
+    done
+  fi
+}
+
+delete_mirror-registry
 delete_hub_cluster
 delete_libvirt_bridge_network
 delete_net_bridge

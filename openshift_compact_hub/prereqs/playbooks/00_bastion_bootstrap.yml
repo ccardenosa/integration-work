@@ -19,6 +19,11 @@
 
   tasks:
 
+    - name: Install container-tools module packages
+      dnf:
+        name: '@container-tools'
+        state: present
+
     # Install some tools to perform system engineering tasks
     # on the bastion host.
     - name: Install vim and bash-completion tools
@@ -26,6 +31,8 @@
         name:
           - vim-enhanced
           - bash-completion
+          - make
+          - golang
         state: present
 
     # Tasty is a CLI to manage (e.g. list, info, install, remove, search) OpenShift operators
@@ -148,3 +155,17 @@
         replace: 'OSH_THEME="zork"'
         backup: yes
       when: not omb.stat.exists
+
+    - name: Configure aliases for Podman
+      lineinfile:
+        path: ~/.bashrc
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - "# podman aliases"
+        - "alias pd='podman'"
+        - "alias pds='podman ps'"
+        - "alias pdi='podman images'"
+        - "# Systemctl default editor"
+        - "export SYSTEMD_EDITOR=vim"
+
