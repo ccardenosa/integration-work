@@ -68,11 +68,40 @@
           - tmux
         state: present
 
+###    - name: Install deps for brewkoji tool
+###      tags:
+###        - install-brewkoji-tool
+###      pip:
+###        name:
+###          - requests-gssapi > 1.2.1
+###          - koji >= 1.30.0
+###        executable: pip3
+
+    - name: Install brewkoji tool
+      tags:
+        - install-brewkoji-tool
+      dnf:
+        name:
+          - python3-requests
+          - python3-gssapi
+          - http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/python-requests-gssapi/1.2.2/2.el8eng/noarch/python3-requests-gssapi-1.2.2-2.el8eng.noarch.rpm
+          - http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/koji/1.30.0/1.el8/noarch/python3-koji-1.30.0-1.el8.noarch.rpm
+          - http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/koji/1.30.0/1.el8/noarch/koji-1.30.0-1.el8.noarch.rpm
+          - http://download.eng.bos.redhat.com/brewroot/packages/brewkoji/1.30/1.el8/noarch/python3-brewkoji-1.30-1.el8.noarch.rpm
+          - http://download.eng.bos.redhat.com/brewroot/packages/brewkoji/1.30/1.el8/noarch/brewkoji-1.30-1.el8.noarch.rpm
+        state: present
+        disable_gpg_check: yes
+
     - name: Set up vimrc
+      tags:
+        - setup-vimrc
       copy:
         dest: "~/.vimrc"
         content: |
-          set background=dark et ts=2 sw=2
+          set background=dark
+          set expandtab
+          set ts=2
+          set sw=2
 
     - name: Set up tmux
       copy:
