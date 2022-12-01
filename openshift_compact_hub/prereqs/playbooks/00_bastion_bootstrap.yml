@@ -185,7 +185,9 @@
         backup: yes
       when: not omb.stat.exists
 
-    - name: Configure aliases for Podman
+    - name: Configure aliases and completion for Podman, vim and tasty
+      tags:
+        - setup-bashrc
       lineinfile:
         path: ~/.bashrc
         line: "{{ item }}"
@@ -197,4 +199,6 @@
         - "alias pdi='podman images'"
         - "# Systemctl default editor"
         - "export SYSTEMD_EDITOR=vim"
+        - "# tasty completion"
+        - "source <(tasty completion bash)"
 
