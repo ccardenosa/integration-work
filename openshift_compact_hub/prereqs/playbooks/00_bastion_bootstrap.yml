@@ -33,6 +33,7 @@
           - bash-completion
           - make
           - golang
+          - gnuplot
         state: present
 
     # Tasty is a CLI to manage (e.g. list, info, install, remove, search) OpenShift operators
