@@ -103,6 +103,15 @@
           set expandtab
           set ts=2
           set sw=2
+          set hlsearch
+          map <leader>tn :tabnew<cr>
+          map <leader>to :tabonly<cr>
+          map <leader>tc :tabclose<cr>
+          map <leader>tm :tabmove
+          map tg :tabprev<CR>
+          map th :tabfirst<CR>
+          map tl :tablast<CR>
+          map tt :tabedit<Space>
 
     - name: Set up tmux
       copy:
