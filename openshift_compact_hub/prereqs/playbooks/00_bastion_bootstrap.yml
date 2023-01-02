@@ -211,4 +211,6 @@
         - "export SYSTEMD_EDITOR=vim"
         - "# tasty completion"
         - "source <(tasty completion bash)"
+        - "# Golang settings"
+        - "export PATH=${PATH}:$(go env GOPATH)/bin"
 
