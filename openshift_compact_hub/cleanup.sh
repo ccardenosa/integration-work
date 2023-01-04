@@ -20,15 +20,26 @@ function delete_hub_cluster {
     run_cmd "systemctl status kcli-cluster-plan.service"
     run_cmd "systemctl stop kcli-cluster-plan.service"
     run_cmd "systemctl disable kcli-cluster-plan.service"
-    run_cmd "rm -f /etc/systemd/system/kcli-cluster-plan.service" 
+    run_cmd "rm -f /etc/systemd/system/kcli-cluster-plan.service"
   fi
   if [[ "$(kcli list cluster|grep $OCP_CLUSTER_NAME)" != "" ]];then
     echo
     echo "Removing virtual Hub cluster..."
     echo "-------------------------------"
     echo
-    run_cmd "kcli list vm" 
-    run_cmd "kcli delete cluster ${OCP_CLUSTER_NAME} -y" 
+    run_cmd "kcli list vm"
+    run_cmd "kcli delete cluster ${OCP_CLUSTER_NAME} -y"
+  fi
+}
+
+function uninstall_local_http_server {
+  if [[ -d /opt/httpd ]];then
+    echo
+    echo "Uninstall Local HTTP Server..."
+    echo "----------------------"
+    echo
+    run_cmd "ansible-playbook $(dirname $0)/prereqs/playbooks/05_httpd_local_server.yml --tags remove-http-server"
+    run_cmd "rm -fr /opt/httpd"
   fi
 }
 
@@ -38,7 +49,7 @@ function remove_assest_dir {
     echo "Removing assest dir..."
     echo "----------------------"
     echo
-    run_cmd "rm -fr /opt/assets" 
+    run_cmd "rm -fr /opt/assets"
   fi
 }
 
@@ -99,4 +110,5 @@ delete_mirror-registry
 delete_hub_cluster
 delete_libvirt_bridge_network
 delete_net_bridge
+uninstall_local_http_server
 remove_assest_dir

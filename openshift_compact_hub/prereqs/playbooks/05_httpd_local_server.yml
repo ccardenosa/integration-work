@@ -1,0 +1,67 @@
+---
+- name: Deploy local HTTP server -> Install HTTPD as a systemd service
+  hosts: localhost
+  vars:
+    http_server_img: "registry.centos.org/centos/httpd-24-centos7:latest"
+    http_server_port: 9000
+
+  tasks:
+
+    - name: Create folder for HTTPD server content
+      when: "'clean-up' in ansible_run_tags or 'remove-http-server' in ansible_run_tags"
+      tags:
+        - clean-up
+        - remove-http-server
+      file:
+        path: /opt/httpd
+        state: absent
+      loop:
+        - /opt/httpd
+        - /etc/systemd/system/podman-httpd.service
+      loop_control:
+        loop_var: sno
+
+    - name: Stop and Disable the HTTPD systemd service
+      ignore_errors: yes
+      when: "'clean-up' in ansible_run_tags or 'remove-http-server' in ansible_run_tags"
+      tags:
+        - clean-up
+        - remove-http-server
+      service:
+        name: podman-httpd.service
+        daemon_reload: yes
+        state: stopped
+        enabled: no
+
+    - name: Create folder for HTTPD server content
+      tags:
+        - install-http-server
+      file:
+        path: /opt/httpd
+        state: directory
+
+    # This is handy to avoid any possible timeout afterwards when starting
+    # the podman-httpd.service. These timeouts may happen when downloading
+    # the HTTPD container image over a restricted network.
+    - name: Download HTTPD server container image
+      tags:
+        - install-http-server
+      podman_image:
+        name: "{{ http_server_img }}"
+        tag: latest
+
+    - name: Install HTTPD as systemd unit
+      tags:
+        - install-http-server
+      template:
+        src: templates/systemd/podman-httpd.service
+        dest: /etc/systemd/system/podman-httpd.service
+
+    - name: Start and Enable the HTTPD systemd service
+      tags:
+        - install-http-server
+      service:
+        name: podman-httpd.service
+        daemon_reload: yes
+        state: started
+        enabled: yes
