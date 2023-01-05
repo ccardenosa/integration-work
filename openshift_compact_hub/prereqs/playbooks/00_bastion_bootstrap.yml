@@ -59,6 +59,7 @@
   vars:
     grpcurl_version: 1.8.6
     pull_secret_validator_version: 1.0.6
+    xsos_version: v0.7.19
 
   tasks:
     - name: Install git, jq, and tmux tools
@@ -177,6 +178,20 @@
         - https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_version }}/grpcurl_{{ grpcurl_version }}_linux_x86_64.tar.gz
         - https://github.com/RHsyseng/pullsecret-validator-cli/releases/download/v{{ pull_secret_validator_version }}/pullsecret-validator-cli-v{{ pull_secret_validator_version }}-linux-amd64.tar.gz
       changed_when: no
+
+    - name: Install xsos tool
+      tags:
+        - install-xsos-tool
+      shell: |
+        xsos_path=$(mktemp -d)
+        pushd ${xsos_path}
+        curl -sL -o {{ xsos_version }}.tar.gz https://github.com/ryran/xsos/archive/refs/tags/{{ xsos_version }}.tar.gz
+        tar xvf {{ xsos_version }}.tar.gz
+        chmod +x $(find $PWD -type f -name 'xsos')
+        cp -v $(find $PWD -type f -name 'xsos') /usr/local/bin/
+        cp -v $(find $PWD -type f -name 'xsos-bash-completion.bash') /etc/bash_completion.d/
+        popd
+        rm -fr ${xsos_path}
 
     - name: Check that oh-my-bash is already installed
       stat:
