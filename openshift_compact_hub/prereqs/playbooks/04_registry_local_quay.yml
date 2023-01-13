@@ -65,6 +65,5 @@
   tasks:
     - name: Login to Quay (disconnected) registry
       containers.podman.podman_login:
-        username: init
-        password: 100Mgmt-
+        authfile: "{{ localPullSecretJson }}"
         registry: "{{ ansible_nodename }}:8443"

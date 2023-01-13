@@ -51,7 +51,7 @@
         ansible-galaxy collection install community.mysql
         ansible-galaxy collection install ansible.posix
         ansible-galaxy collection install containers.podman
-        ansible-galaxy collection install kubernetes.core
+        ansible-galaxy collection install community.kubernetes
 
 - name: Boostrap bastion host -> Install developer tools
   hosts: localhost
@@ -69,6 +69,15 @@
           - jq
           - tmux
         state: present
+
+    - name: Install k8s module deps
+      tags:
+        - install-k8s-modules
+      pip:
+        name:
+          - kubernetes >= 25.3.0
+          - openshift >= 0.13.1
+        executable: pip3.9
 
 ###    - name: Install deps for brewkoji tool
 ###      tags:
@@ -177,7 +186,17 @@
         - https://github.com/corneliusweig/ketall/releases/latest/download/get-all-amd64-linux.tar.gz
         - https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_version }}/grpcurl_{{ grpcurl_version }}_linux_x86_64.tar.gz
         - https://github.com/RHsyseng/pullsecret-validator-cli/releases/download/v{{ pull_secret_validator_version }}/pullsecret-validator-cli-v{{ pull_secret_validator_version }}-linux-amd64.tar.gz
+        - https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64.tar.gz
       changed_when: no
+
+    - name: Setup binaries after installing them
+      tags:
+        - setup-bin
+      shell: |
+        pushd /usr/bin
+        mv yq_linux_amd64 yq
+        rm -f yq.1
+        popd
 
     - name: Install xsos tool
       tags:
