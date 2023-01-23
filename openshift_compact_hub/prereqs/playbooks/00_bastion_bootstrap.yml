@@ -127,8 +127,13 @@
       copy:
         dest: "~/.tmux.conf"
         content: |
+          # Reload tmux.conf
+          unbind r
+          bind r source-file ~/.tmux.conf \; display "Reloaded ~/.tmux.conf"
+
           # Mouse mode
-          set -g mouse on
+          # set -g mouse on
+          bind-key -T prefix m set -g mouse\; display 'Mouse: #{?mouse,ON,OFF}'
 
           # Status bar
           set -g status on
