@@ -192,6 +192,7 @@
         - https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_version }}/grpcurl_{{ grpcurl_version }}_linux_x86_64.tar.gz
         - https://github.com/RHsyseng/pullsecret-validator-cli/releases/download/v{{ pull_secret_validator_version }}/pullsecret-validator-cli-v{{ pull_secret_validator_version }}-linux-amd64.tar.gz
         - https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64.tar.gz
+        - https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.5.7/kustomize_v4.5.7_linux_amd64.tar.gz
       changed_when: no
 
     - name: Setup binaries after installing them
@@ -216,6 +217,14 @@
         cp -v $(find $PWD -type f -name 'xsos-bash-completion.bash') /etc/bash_completion.d/
         popd
         rm -fr ${xsos_path}
+
+    - name: Setup Kustomize to support SiteConfig files
+      tags:
+        - setup-bin
+      shell: |
+        mkdir -p ~/.config/kustomize/plugin
+        podman cp $(podman create --name policgentool --rm quay.io/openshift-kni/ztp-site-generator:latest):/kustomize/plugin/ran.openshift.io ~/.config/kustomize/plugin/
+        podman rm -f policgentool
 
     - name: Check that oh-my-bash is already installed
       stat:
