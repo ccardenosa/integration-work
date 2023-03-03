@@ -11,13 +11,33 @@ opt_dns_2=10.11.5.160
 opt_dns_3=10.2.70.215
 ocp_apiserver=172.16.55.13
 ocp_apps=172.16.55.14
-opt_domain_name=telco5gran.eng.rdu2.redhat.cxm
+opt_domain_name=telco5gran.eng.rdu2.redhat.com
 dnsmasq_drop_in_conf=/etc/dnsmasq.d/00-hubnetwork.conf
 
 function run_cmd {
   echo -e "\e[1;33mRunning: \033[1;37m$1\e[0m"
   eval $1
+  ret=$?
 }
+
+function add_apiserver_public_ips {
+  run_cmd "sed -i '/#/a nameserver ${hub_gw_ipv4}' /etc/resolv.conf"
+  run_cmd "sed -i '/#/a search ${opt_domain_name}' /etc/resolv.conf"
+
+  for i in {0..2} ; do
+    run_cmd "ssh -o StrictHostKeyChecking=no core@${HUB_CLUSTER_NAME}-ctlplane-$i ip -o a|grep ${ocp_apiserver}/24"
+    if [[ $ret -eq 0 ]] ;then
+      run_cmd "ssh -o StrictHostKeyChecking=no core@${HUB_CLUSTER_NAME}-ctlplane-$i sudo ip a add 10.8.34.103/24 dev br-ex"
+    fi
+    run_cmd "ssh -o StrictHostKeyChecking=no core@${HUB_CLUSTER_NAME}-ctlplane-$i ip -o a|grep ${ocp_apps}/24"
+    if [[ $ret -eq 0 ]] ;then
+      run_cmd "ssh -o StrictHostKeyChecking=no core@${HUB_CLUSTER_NAME}-ctlplane-$i sudo ip a add 10.8.34.104/24 dev br-ex"
+    fi
+  done
+  exit 0
+}
+
+#add_apiserver_public_ips
 
 echo "Add GW IPv4 to ${HUB_NETWORK}"
 run_cmd "/usr/sbin/ip a add ${hub_gw_ipv4}/24 dev ${HUB_NETWORK}"
@@ -77,8 +97,10 @@ for cl in ${sno_clusters[@]}; do
   select_mac ${cl}
   echo >> ${dnsmasq_drop_in_conf}
   echo "# SNO ${cl} settings:" >> ${dnsmasq_drop_in_conf}
+  echo "dhcp-host=${cl}.${opt_domain_name},${sno_ipv4_addr}" >> ${dnsmasq_drop_in_conf}
   echo "dhcp-host=${sno_mac_addr},${cl}.${opt_domain_name},${sno_ipv4_addr}" >> ${dnsmasq_drop_in_conf}
   echo "host-record=api.${cl}.${opt_domain_name},${sno_ipv4_addr}" >> ${dnsmasq_drop_in_conf}
+  echo "host-record=api-int.${cl}.${opt_domain_name},${sno_ipv4_addr}" >> ${dnsmasq_drop_in_conf}
   echo "# Wild card records" >> ${dnsmasq_drop_in_conf}
   echo "address=/apps.${cl}.${opt_domain_name}/${sno_ipv4_addr}" >> ${dnsmasq_drop_in_conf}
 done
