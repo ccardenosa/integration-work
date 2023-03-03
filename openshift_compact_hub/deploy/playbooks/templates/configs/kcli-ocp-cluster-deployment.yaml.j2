@@ -12,7 +12,7 @@ domain: {{ clusterDomainName }}
 version: stable
 #tag: {% set res = trim_quotes(ocpRelease)|split(".") %}{{ res[0] }}.{{ res[1] }}.{{ res[2] }}
 tag: {{ ocpRelease }}
-masters: 3
+ctlplanes: 3
 workers: 0
 memory: {{ vmMem }}
 numcpus: {{ vmNumCPUs }}
